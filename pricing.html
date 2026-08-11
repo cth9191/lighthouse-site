@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing | Lighthouse</title>
+  <meta name="description" content="Simple pricing for Lighthouse: free to start, flat pricing as you grow.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-nav">
+    <div class="container">
+      <a class="brand" href="index.html">
+        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="16" r="6" fill="#f2f2ef"/>
+          <path d="M16 2v6M16 24v6M2 16h6M24 16h6" stroke="#f2f2ef" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        Lighthouse
+      </a>
+      <button class="nav-toggle" aria-expanded="false" aria-label="Toggle menu">&#9776;</button>
+      <ul class="nav-links">
+        <li><a href="product.html">Product</a></li>
+        <li><a href="pricing.html" aria-current="page">Pricing</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a class="btn" href="index.html#book">Book a call</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <h1>Pricing that grows with you.</h1>
+        <p class="lede">Flat monthly pricing based on tracked users. No per-seat charges, so your whole team can look at the data.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="plan reveal">
+          <div class="plan-name">Starter</div>
+          <div class="price">$0 <small>FOREVER</small></div>
+          <p>For side projects and pre-launch products.</p>
+          <ul>
+            <li>Up to 1,000 tracked users</li>
+            <li>Core dashboards and funnels</li>
+            <li>Weekly email digest</li>
+            <li>30-day data history</li>
+          </ul>
+          <a class="btn btn-ghost" href="index.html#book">Start free</a>
+        </div>
+
+        <div class="plan featured reveal">
+          <div class="plan-name">Growth</div>
+          <div class="price">$149 <small>PER MONTH</small></div>
+          <p>For startups with real traction and real questions.</p>
+          <ul>
+            <li>Up to 50,000 tracked users</li>
+            <li>Automatic insight alerts</li>
+            <li>Plain-English question box</li>
+            <li>Slack and email delivery</li>
+            <li>Unlimited data history</li>
+          </ul>
+          <a class="btn" href="index.html#book">Book a call</a>
+        </div>
+
+        <div class="plan reveal">
+          <div class="plan-name">Scale</div>
+          <div class="price">Custom</div>
+          <p>For growing companies with warehouses and compliance needs.</p>
+          <ul>
+            <li>Unlimited tracked users</li>
+            <li>Warehouse-native deployment</li>
+            <li>SSO and audit logs</li>
+            <li>Dedicated data advisor</li>
+          </ul>
+          <a class="btn btn-ghost" href="index.html#book">Talk to us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>Common questions</h2>
+      </div>
+      <div class="faq reveal">
+        <div class="faq-item">
+          <button aria-expanded="false">
+            What counts as a tracked user?
+            <svg class="chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="faq-answer">Anyone who triggers at least one event in your product during the billing month. Visitors who bounce off your marketing site don't count.</div>
+        </div>
+        <div class="faq-item">
+          <button aria-expanded="false">
+            Do I need a data team to use Lighthouse?
+            <svg class="chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="faq-answer">No, that's the point. Lighthouse was built for teams where the founder is also the analyst. If you do have analysts, they can inspect every query behind every answer.</div>
+        </div>
+        <div class="faq-item">
+          <button aria-expanded="false">
+            What happens if I go over my tracked-user limit?
+            <svg class="chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="faq-answer">Nothing breaks. We keep collecting data and email you about moving up a tier. You'll never lose data over a billing limit.</div>
+        </div>
+        <div class="faq-item">
+          <button aria-expanded="false">
+            Where is my data stored?
+            <svg class="chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="faq-answer">In your choice of US or EU regions. On the Scale plan, Lighthouse can run directly against your own warehouse so raw data never leaves your infrastructure.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA band -->
+  <section class="section cta-band">
+    <div class="container reveal">
+      <h2>Not sure which plan fits?</h2>
+      <p>Book a call and we'll look at your data volume together. No pressure, no 14-step sales process.</p>
+      <a class="btn" href="index.html#book">Book a call</a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 Lighthouse Analytics, Inc. A fictional company.</p>
+      <ul class="footer-links">
+        <li><a href="product.html">Product</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

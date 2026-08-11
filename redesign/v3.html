@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lighthouse | V3 Afterglow</title>
+<style>
+  :root {
+    --bg: #0a0d14;
+    --panel: rgb(255 255 255 / 0.04);
+    --panel-line: rgb(255 255 255 / 0.1);
+    --ink: #eef1f6;
+    --dim: #8b93a3;
+    --glow: #37c8b4;
+    --font: ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); font-family: var(--font); line-height: 1.65;
+    background: var(--bg);
+  }
+  img, svg { max-width: 100%; display: block; }
+  a { color: inherit; }
+  .container { max-width: 1080px; margin-inline: auto; padding-inline: 1.5rem; }
+
+  /* Aurora backdrop behind the hero */
+  .aurora {
+    position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: -1;
+  }
+  .aurora::before, .aurora::after {
+    content: ""; position: absolute; border-radius: 50%; filter: blur(90px);
+  }
+  .aurora::before {
+    width: 640px; height: 640px; left: 50%; top: -280px; transform: translateX(-50%);
+    background: radial-gradient(circle, rgb(55 200 180 / 0.28), transparent 65%);
+  }
+  .aurora::after {
+    width: 480px; height: 480px; left: 12%; top: 60px;
+    background: radial-gradient(circle, rgb(90 120 220 / 0.16), transparent 65%);
+  }
+
+  nav { position: sticky; top: 0; z-index: 5; }
+  nav .inner {
+    display: flex; align-items: center; gap: 2rem; height: 60px; margin-top: 1rem;
+    padding-inline: 1.5rem; border-radius: 999px;
+    background: rgb(10 13 20 / 0.75); border: 1px solid var(--panel-line);
+    backdrop-filter: blur(12px);
+  }
+  .brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; text-decoration: none; }
+  .brand svg { width: 24px; height: 24px; }
+  .links { display: flex; gap: 1.6rem; margin-left: auto; align-items: center; }
+  .links a { color: var(--dim); text-decoration: none; font-size: 0.9rem; }
+  .links a:hover { color: var(--ink); }
+  .links a.btn { color: #04211b; }
+  .links a.btn:hover { color: #04211b; }
+
+  .btn {
+    display: inline-block; padding: 0.75rem 1.6rem; font-weight: 600; font-size: 0.95rem;
+    text-decoration: none; cursor: pointer; font-family: inherit; border: none; border-radius: 999px;
+    background: linear-gradient(135deg, #3ad6c0, #2b9d8f); color: #04211b;
+    box-shadow: 0 0 24px rgb(55 200 180 / 0.25);
+    transition: box-shadow 0.2s ease, transform 0.1s ease;
+  }
+  .btn:hover { box-shadow: 0 0 36px rgb(55 200 180 / 0.4); }
+  .btn:active { transform: translateY(1px); }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--panel-line); box-shadow: none; }
+  .btn.ghost:hover { border-color: var(--dim); }
+
+  /* Hero */
+  .hero { position: relative; text-align: center; padding: 6rem 1.5rem 3rem; }
+  h1 {
+    font-size: clamp(2.4rem, 5.4vw, 3.7rem); line-height: 1.08; letter-spacing: -0.03em;
+    margin: 0 auto 1.25rem; max-width: 22ch; font-weight: 650;
+    background: linear-gradient(180deg, #ffffff, #a9b2c2);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p { color: var(--dim); max-width: 50ch; margin: 0 auto 2.25rem; font-size: 1.1rem; }
+  .hero-actions { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
+
+  /* Floating glass insight stack */
+  .stack { position: relative; max-width: 620px; margin: 4rem auto 0; min-height: 240px; }
+  .glass {
+    position: absolute; left: 0; right: 0; margin-inline: auto;
+    border-radius: 18px; border: 1px solid var(--panel-line);
+    background: var(--panel); backdrop-filter: blur(14px);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 24px 60px rgb(0 0 0 / 0.4);
+    padding: 1.4rem 1.6rem; text-align: left;
+  }
+  .glass .tag { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--glow); }
+  .glass p { margin: 0.5rem 0 0; font-size: 0.98rem; }
+  .glass.g1 { top: 0; width: 100%; z-index: 3; }
+  .glass.g2 { top: 118px; width: 92%; z-index: 2; opacity: 0.75; }
+  .glass.g3 { top: 216px; width: 84%; z-index: 1; opacity: 0.45; }
+
+  /* Logos */
+  .logos { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; padding: 4.5rem 1.5rem 1rem; color: var(--dim); font-weight: 600; }
+
+  /* Bento features */
+  .section { padding-block: 5.5rem; }
+  .section-head { text-align: center; max-width: 58ch; margin: 0 auto 3rem; }
+  .section-head h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); letter-spacing: -0.02em; line-height: 1.12; margin: 0 0 0.75rem; }
+  .section-head p { color: var(--dim); margin: 0; }
+  .bento { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.25rem; }
+  .cell {
+    border-radius: 18px; border: 1px solid var(--panel-line); background: var(--panel);
+    padding: 2rem; backdrop-filter: blur(8px);
+  }
+  .cell.tall { grid-row: span 2; display: flex; flex-direction: column; justify-content: space-between; }
+  .cell h3 { margin: 0 0 0.5rem; font-size: 1.15rem; }
+  .cell p { margin: 0; color: var(--dim); font-size: 0.95rem; }
+  .cell .art { margin-top: 1.75rem; border-radius: 12px; overflow: hidden; }
+
+  /* Quote */
+  .quotes { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .quote {
+    border-radius: 18px; border: 1px solid var(--panel-line); background: var(--panel);
+    padding: 2rem; backdrop-filter: blur(8px);
+  }
+  .quote blockquote { margin: 0 0 1.25rem; font-size: 1.05rem; }
+  .quote .who { color: var(--dim); font-size: 0.85rem; }
+  .quote .who strong { color: var(--ink); display: block; font-size: 0.95rem; }
+
+  /* Booking */
+  .booking { position: relative; }
+  .booking .glow-line {
+    height: 1px; margin-bottom: 5.5rem;
+    background: linear-gradient(90deg, transparent, rgb(55 200 180 / 0.5), transparent);
+  }
+  .booking .container { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+  .booking h2 { font-size: clamp(1.9rem, 4vw, 2.5rem); letter-spacing: -0.02em; line-height: 1.12; margin: 0 0 0.75rem; }
+  .booking .lede { color: var(--dim); }
+  form {
+    border-radius: 18px; border: 1px solid var(--panel-line); background: var(--panel);
+    padding: 2rem; backdrop-filter: blur(8px);
+  }
+  .field { margin-bottom: 1.15rem; }
+  .field label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; }
+  .field input {
+    width: 100%; padding: 0.75rem 1rem; border-radius: 10px;
+    background: rgb(0 0 0 / 0.3); border: 1px solid var(--panel-line);
+    color: var(--ink); font-family: inherit; font-size: 1rem;
+  }
+  .field input:focus { outline: 2px solid var(--glow); outline-offset: 1px; border-color: var(--glow); }
+  .field .error { display: none; color: #f0918a; font-size: 0.8rem; margin: 0.3rem 0 0; }
+  .field.invalid .error { display: block; }
+  .field.invalid input { border-color: #f0918a; }
+  .success {
+    display: none; padding: 2.5rem 2rem; text-align: center;
+    border-radius: 18px; border: 1px solid var(--glow); background: var(--panel);
+  }
+  .booking.done form { display: none; }
+  .booking.done .success { display: block; }
+
+  footer { border-top: 1px solid var(--panel-line); padding: 2rem 0; margin-top: 3rem; }
+  footer .container { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; color: var(--dim); font-size: 0.85rem; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .glass { transition: transform 0.5s ease; }
+    .stack:hover .g2 { transform: translateY(6px); }
+    .stack:hover .g3 { transform: translateY(12px); }
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+  }
+  @media (max-width: 860px) {
+    .links a:not(.btn) { display: none; }
+    .bento, .quotes, .booking .container { grid-template-columns: 1fr; }
+    .stack { min-height: 320px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="inner">
+      <a class="brand" href="#">
+        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="16" r="6" fill="#37c8b4"/>
+          <path d="M16 2v6M16 24v6M2 16h6M24 16h6" stroke="#37c8b4" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        Lighthouse
+      </a>
+      <div class="links">
+        <a href="#">Product</a><a href="#">Pricing</a><a href="#">About</a>
+        <a class="btn" href="#book">Book a call</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="aurora" aria-hidden="true"></div>
+  <h1>Know why your users churn, before they do.</h1>
+  <p>Lighthouse watches your product data around the clock and explains what changed, in plain English.</p>
+  <div class="hero-actions">
+    <a class="btn" href="#book">Book a call</a>
+    <a class="btn ghost" href="#features">See how it works</a>
+  </div>
+  <div class="stack" aria-hidden="true">
+    <div class="glass g1">
+      <span class="tag">Lighthouse insight</span>
+      <p>Retention dipped after the June 3 pricing change. 62% of drop-offs hit the paywall twice.</p>
+    </div>
+    <div class="glass g2">
+      <span class="tag">Flagged this morning</span>
+      <p>Mobile Safari conversion fell 9 points after the checkout redesign shipped.</p>
+    </div>
+    <div class="glass g3">
+      <span class="tag">Weekly digest</span>
+      <p>Week-2 retention is tracking 3 points above baseline. One suggested focus inside.</p>
+    </div>
+  </div>
+</header>
+
+<div class="logos">
+  <span>Fernhollow</span><span>Driftline</span><span>Copperbeam</span><span>Quillstack</span><span>Marlowe Labs</span>
+</div>
+
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Analytics that does the analysis for you.</h2>
+      <p>Most tools show you charts and leave the hard part to you. Lighthouse reads the data and hands you the conclusion.</p>
+    </div>
+    <div class="bento">
+      <div class="cell tall reveal">
+        <div>
+          <h3>Insights surface themselves</h3>
+          <p>When conversion dips or a cohort stalls, Lighthouse notices, digs into the segments involved, and posts a written explanation to Slack before Monday standup.</p>
+        </div>
+        <div class="art">
+          <svg viewBox="0 0 480 240" aria-hidden="true">
+            <rect width="480" height="240" rx="12" fill="rgb(255 255 255 / 0.04)"/>
+            <g stroke="rgb(255 255 255 / 0.08)"><line x1="30" y1="70" x2="450" y2="70"/><line x1="30" y1="130" x2="450" y2="130"/><line x1="30" y1="190" x2="450" y2="190"/></g>
+            <polyline points="30,110 100,104 170,112 240,106 310,168 380,174 450,178" fill="none" stroke="#37c8b4" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="310" cy="168" r="6" fill="#37c8b4"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cell reveal">
+        <h3>Ask in plain English</h3>
+        <p>"Which feature do our best customers use most?" Type it, get a charted answer with the reasoning shown.</p>
+      </div>
+      <div class="cell reveal">
+        <h3>Set up in an afternoon</h3>
+        <p>One snippet or connect Segment, Stripe, or Postgres. Historical data backfills automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="quotes">
+      <div class="quote reveal">
+        <blockquote>"Lighthouse flagged that churn was concentrated in users who never invited a teammate. Retention climbed 14% in a quarter."</blockquote>
+        <div class="who"><strong>Priya Raghavan</strong>Co-founder, Fernhollow</div>
+      </div>
+      <div class="quote reveal">
+        <blockquote>"It's the analyst we couldn't afford to hire. The Monday summary alone is worth the price."</blockquote>
+        <div class="who"><strong>Marcus Oyelaran</strong>Head of Growth, Driftline</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section booking" id="book">
+  <div class="glow-line" aria-hidden="true"></div>
+  <div class="container">
+    <div class="reveal">
+      <h2>See Lighthouse on your own data.</h2>
+      <p class="lede">Book a 30-minute call. We'll connect a sample of your data live and show you the first insights before the call ends.</p>
+    </div>
+    <div class="reveal">
+      <form id="book-form" novalidate>
+        <div class="field" data-required>
+          <label for="v3-name">Full name</label>
+          <input id="v3-name" type="text" autocomplete="name">
+          <p class="error">Please enter your name.</p>
+        </div>
+        <div class="field" data-required>
+          <label for="v3-email">Work email</label>
+          <input id="v3-email" type="email" autocomplete="email">
+          <p class="error">Please enter a valid email address.</p>
+        </div>
+        <div class="field" data-required>
+          <label for="v3-company">Company</label>
+          <input id="v3-company" type="text" autocomplete="organization">
+          <p class="error">Please enter your company name.</p>
+        </div>
+        <button class="btn" type="submit">Book a call</button>
+      </form>
+      <div class="success">
+        <strong>Request received.</strong>
+        <p style="color: var(--dim); margin: 0.5rem 0 0;">We'll email you a few times within one business day.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <span>&copy; 2026 Lighthouse Analytics, Inc. A fictional company.</span>
+    <span>V3 Afterglow</span>
+  </div>
+</footer>
+
+<script>
+// Booking form
+const form = document.getElementById("book-form");
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  let ok = true;
+  form.querySelectorAll(".field[data-required]").forEach((f) => {
+    const input = f.querySelector("input");
+    let good = input.value.trim() !== "";
+    if (good && input.type === "email") good = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
+    f.classList.toggle("invalid", !good);
+    if (!good) ok = false;
+  });
+  if (ok) document.querySelector(".booking").classList.add("done");
+});
+
+// Reveal on scroll
+const io = new IntersectionObserver((es) => es.forEach((e) => {
+  if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+}), { threshold: 0.15 });
+document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

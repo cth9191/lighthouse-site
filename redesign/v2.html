@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lighthouse | V2 Beacon</title>
+<style>
+  :root {
+    --bg: #050807;
+    --panel: #0a100e;
+    --ink: #e8efec;
+    --dim: #7d8c87;
+    --line: #1a2622;
+    --accent: #2de2c3;
+    --font: ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, Consolas, "Cascadia Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); font-family: var(--font); line-height: 1.6;
+    background: var(--bg);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+  img, svg { max-width: 100%; display: block; }
+  a { color: inherit; }
+  .container { max-width: 1160px; margin-inline: auto; padding-inline: 1.5rem; }
+
+  nav { border-bottom: 1px solid var(--line); background: rgb(5 8 7 / 0.9); position: sticky; top: 0; z-index: 5; backdrop-filter: blur(6px); }
+  nav .container { display: flex; align-items: center; gap: 2rem; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; text-decoration: none; font-family: var(--mono); letter-spacing: 0.04em; }
+  .brand svg { width: 22px; height: 22px; }
+  .links { display: flex; gap: 1.6rem; margin-left: auto; }
+  .links a { color: var(--dim); text-decoration: none; font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .links a:hover { color: var(--accent); }
+
+  .btn {
+    display: inline-block; padding: 0.75rem 1.5rem; font-weight: 700; font-size: 0.95rem;
+    text-decoration: none; cursor: pointer; font-family: inherit; border: none;
+    background: var(--accent); color: #04211b;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .btn:hover { filter: brightness(1.12); }
+  .btn:active { transform: translateY(1px); }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .btn.ghost:hover { border-color: var(--accent); color: var(--accent); filter: none; }
+
+  /* Hero: left copy, right live feed panel */
+  .hero { padding-block: 5rem 4rem; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgb(45 226 195 / 0.05), transparent 40%); }
+  .hero .container { display: grid; grid-template-columns: 1.05fr 1fr; gap: 3.5rem; align-items: center; }
+  .kicker { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(2.4rem, 5vw, 3.9rem); line-height: 1.02; letter-spacing: -0.03em; margin: 1rem 0; font-weight: 750; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--dim); max-width: 46ch; margin: 0 0 2rem; }
+  .hero-actions { display: flex; gap: 0.9rem; flex-wrap: wrap; }
+
+  /* Feed panel with beacon sweep */
+  .panel { position: relative; border: 1px solid var(--line); background: var(--panel); overflow: hidden; }
+  .sweep {
+    position: absolute; inset: -40%; pointer-events: none; opacity: 0.16;
+    background: conic-gradient(from 0deg, transparent 0 320deg, var(--accent) 355deg, transparent 360deg);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .sweep { animation: spin 9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  }
+  .panel-head { display: flex; justify-content: space-between; padding: 0.8rem 1.2rem; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); position: relative; }
+  .live { color: var(--accent); }
+  .feed { position: relative; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.9rem; min-height: 300px; }
+  .event { border: 1px solid var(--line); background: rgb(5 8 7 / 0.7); padding: 0.9rem 1.1rem; }
+  .event .t { font-family: var(--mono); font-size: 0.68rem; color: var(--dim); letter-spacing: 0.08em; }
+  .event .msg { font-size: 0.92rem; margin-top: 0.25rem; }
+  .event.flag { border-left: 3px solid var(--accent); }
+  .event.flag .msg strong { color: var(--accent); font-weight: 600; }
+
+  /* Stat strip */
+  .stats { border-bottom: 1px solid var(--line); background: var(--bg); }
+  .stats .container { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .stat { padding: 1.75rem 1.5rem; border-right: 1px solid var(--line); }
+  .stat:first-child { border-left: 1px solid var(--line); }
+  .stat .n { font-family: var(--mono); font-size: 1.9rem; color: var(--ink); }
+  .stat .l { color: var(--dim); font-size: 0.85rem; }
+
+  /* Features as ledger rows */
+  .section { padding-block: 5.5rem; }
+  .section h2 { font-size: clamp(1.9rem, 4vw, 2.75rem); letter-spacing: -0.02em; line-height: 1.1; margin: 0 0 2.5rem; max-width: 24ch; }
+  .rows { border-top: 1px solid var(--line); }
+  .row { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; padding: 2rem 0; border-bottom: 1px solid var(--line); }
+  .row .k { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); padding-top: 0.3rem; }
+  .row h3 { margin: 0 0 0.4rem; font-size: 1.15rem; }
+  .row p { margin: 0; color: var(--dim); max-width: 62ch; }
+
+  /* Quote */
+  .quote { border-block: 1px solid var(--line); background: var(--panel); padding-block: 4rem; }
+  .quote blockquote { margin: 0; font-size: clamp(1.2rem, 2.5vw, 1.6rem); line-height: 1.45; max-width: 40ch; }
+  .quote .who { margin-top: 1.5rem; color: var(--dim); font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; }
+
+  /* Booking */
+  .booking .container { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+  .booking h2 { margin-bottom: 0.75rem; }
+  .booking .lede { color: var(--dim); }
+  form { border: 1px solid var(--line); background: var(--panel); padding: 1.75rem; }
+  .field { margin-bottom: 1.1rem; }
+  .field label { display: block; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin-bottom: 0.4rem; }
+  .field input { width: 100%; padding: 0.7rem 0.9rem; background: var(--bg); border: 1px solid var(--line); color: var(--ink); font-family: var(--mono); font-size: 0.95rem; }
+  .field input:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+  .field .error { display: none; color: #e07a70; font-size: 0.8rem; margin: 0.3rem 0 0; }
+  .field.invalid .error { display: block; }
+  .field.invalid input { border-color: #e07a70; }
+  .success { display: none; padding: 2rem; border: 1px solid var(--accent); background: var(--panel); }
+  .booking.done form { display: none; }
+  .booking.done .success { display: block; }
+
+  footer { border-top: 1px solid var(--line); padding: 2rem 0; background: var(--bg); }
+  footer .container { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; color: var(--dim); font-size: 0.85rem; font-family: var(--mono); }
+
+  @media (max-width: 860px) {
+    .links { display: none; }
+    .hero .container, .booking .container { grid-template-columns: 1fr; }
+    .stats .container { grid-template-columns: 1fr; }
+    .stat { border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .row { grid-template-columns: 1fr; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a class="brand" href="#">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="16" r="6" fill="#2de2c3"/>
+        <path d="M16 2v6M16 24v6M2 16h6M24 16h6" stroke="#2de2c3" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      LIGHTHOUSE
+    </a>
+    <div class="links">
+      <a href="#">Product</a><a href="#">Pricing</a><a href="#">About</a><a href="#book">Book a call</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div>
+      <span class="kicker">Product analytics, self-analyzing</span>
+      <h1>Your data already knows why users churn. <em>Now it talks.</em></h1>
+      <p>Lighthouse watches every funnel and cohort around the clock, flags what actually matters, and explains it in plain English.</p>
+      <div class="hero-actions">
+        <a class="btn" href="#book">Book a call</a>
+        <a class="btn ghost" href="#work">See how it works</a>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="sweep" aria-hidden="true"></div>
+      <div class="panel-head"><span>Insight feed</span><span class="live">&#9679; live</span></div>
+      <div class="feed" id="feed"></div>
+    </div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="container">
+    <div class="stat"><div class="n">4.1B</div><div class="l">events watched monthly</div></div>
+    <div class="stat"><div class="n">11 min</div><div class="l">median time to first insight</div></div>
+    <div class="stat"><div class="n">340+</div><div class="l">product teams on board</div></div>
+  </div>
+</div>
+
+<section class="section" id="work">
+  <div class="container">
+    <h2>The analyst you couldn't afford to hire.</h2>
+    <div class="rows">
+      <div class="row">
+        <span class="k">Watch</span>
+        <div>
+          <h3>Baselines for everything</h3>
+          <p>Models learn the normal shape of your funnels, cohorts, and revenue, so a real problem gets flagged and a normal Tuesday dip gets ignored.</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="k">Explain</span>
+        <div>
+          <h3>Written briefs, not alerts</h3>
+          <p>Each finding arrives as a short explanation: what changed, which segment drove it, and what it correlates with. Delivered to Slack before Monday standup.</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="k">Answer</span>
+        <div>
+          <h3>Ask in plain English</h3>
+          <p>"Where do trial users get stuck?" gets a charted answer with the reasoning shown, so you can check the work. No SQL, no waiting on an analyst.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="quote">
+  <div class="container">
+    <blockquote>"Lighthouse flagged that churn was concentrated in users who never invited a teammate. We rebuilt onboarding around invites and retention climbed 14% in a quarter."</blockquote>
+    <div class="who">PRIYA RAGHAVAN / CO-FOUNDER, FERNHOLLOW</div>
+  </div>
+</div>
+
+<section class="section booking" id="book">
+  <div class="container">
+    <div>
+      <h2>See Lighthouse on your own data.</h2>
+      <p class="lede">Book a 30-minute call. We'll connect a sample of your data live and show you the first insights before the call ends.</p>
+    </div>
+    <div>
+      <form id="book-form" novalidate>
+        <div class="field" data-required>
+          <label for="v2-name">Full name</label>
+          <input id="v2-name" type="text" autocomplete="name">
+          <p class="error">Please enter your name.</p>
+        </div>
+        <div class="field" data-required>
+          <label for="v2-email">Work email</label>
+          <input id="v2-email" type="email" autocomplete="email">
+          <p class="error">Please enter a valid email address.</p>
+        </div>
+        <div class="field" data-required>
+          <label for="v2-company">Company</label>
+          <input id="v2-company" type="text" autocomplete="organization">
+          <p class="error">Please enter your company name.</p>
+        </div>
+        <button class="btn" type="submit">Book a call</button>
+      </form>
+      <div class="success">
+        <strong>Request received.</strong>
+        <p style="color: var(--dim); margin: 0.5rem 0 0;">We'll email you a few times within one business day.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <span>&copy; 2026 Lighthouse Analytics, Inc. A fictional company.</span>
+    <span>V2 BEACON</span>
+  </div>
+</footer>
+
+<script>
+// Insight feed: events cycle in like a monitoring console.
+const EVENTS = [
+  { t: "09:12", msg: "Checkout conversion steady at 8.1%. No action needed.", flag: false },
+  { t: "09:47", msg: "<strong>Flagged:</strong> mobile Safari conversion fell 9 points after the checkout redesign.", flag: true },
+  { t: "10:03", msg: "Cohort week-2 retention tracking 3 points above baseline.", flag: false },
+  { t: "10:31", msg: "<strong>Flagged:</strong> 62% of paywall drop-offs hit the limit twice before leaving.", flag: true },
+  { t: "11:05", msg: "Weekly digest drafted. Review before it sends at 4pm.", flag: false }
+];
+const feed = document.getElementById("feed");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function render(count) {
+  feed.innerHTML = "";
+  EVENTS.slice(0, count).forEach((e) => {
+    const div = document.createElement("div");
+    div.className = "event" + (e.flag ? " flag" : "");
+    div.innerHTML = '<div class="t">' + e.t + '</div><div class="msg">' + e.msg + "</div>";
+    feed.appendChild(div);
+  });
+}
+if (reduceMotion) {
+  render(EVENTS.length);
+} else {
+  let n = 1;
+  render(n);
+  setInterval(() => { n = n >= EVENTS.length ? 1 : n + 1; render(n); }, 2200);
+}
+
+// Booking form
+const form = document.getElementById("book-form");
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  let ok = true;
+  form.querySelectorAll(".field[data-required]").forEach((f) => {
+    const input = f.querySelector("input");
+    let good = input.value.trim() !== "";
+    if (good && input.type === "email") good = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
+    f.classList.toggle("invalid", !good);
+    if (!good) ok = false;
+  });
+  if (ok) document.querySelector(".booking").classList.add("done");
+});
+</script>
+</body>
+</html>

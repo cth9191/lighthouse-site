@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lighthouse | V1 Halftone</title>
+<style>
+  :root {
+    --bg: #0b0b0b;
+    --panel: #121212;
+    --ink: #f2f2ef;
+    --dim: #9a9a94;
+    --line: #262626;
+    --font: ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, Consolas, "Cascadia Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.6; }
+  img, svg, canvas { max-width: 100%; display: block; }
+  a { color: inherit; }
+  .container { max-width: 1120px; margin-inline: auto; padding-inline: 1.5rem; }
+
+  /* Hatched divider, borrowed from the reference's diagonal strips */
+  .hatch {
+    height: 14px;
+    border-block: 1px solid var(--line);
+    background: repeating-linear-gradient(45deg, transparent 0 6px, var(--line) 6px 7px);
+  }
+
+  /* Nav */
+  nav { border-bottom: 1px solid var(--line); }
+  nav .container { display: flex; align-items: center; gap: 2rem; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; text-decoration: none; }
+  .brand svg { width: 24px; height: 24px; }
+  .links { display: flex; gap: 1.75rem; margin-left: 1rem; }
+  .links a { color: var(--dim); text-decoration: none; font-size: 0.85rem; }
+  .links a:hover { color: var(--ink); }
+  .nav-cta { margin-left: auto; }
+
+  .btn {
+    display: inline-block; padding: 0.7rem 1.4rem; font-weight: 600; font-size: 0.95rem;
+    text-decoration: none; border: 1px solid var(--ink); cursor: pointer;
+    background: var(--ink); color: var(--bg); font-family: inherit;
+    transition: transform 0.1s ease, opacity 0.15s ease;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn:active { transform: translateY(1px); }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn.ghost:hover { border-color: var(--dim); opacity: 1; }
+
+  /* Hero */
+  .hero { text-align: center; padding: 4.5rem 1.5rem 0; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--dim); border: 1px solid var(--line); padding: 0.4rem 0.9rem; border-radius: 999px;
+  }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4.25rem); line-height: 1.05; letter-spacing: -0.03em;
+    margin: 1.5rem auto 1rem; max-width: 18ch; font-weight: 650;
+  }
+  .hero p { color: var(--dim); max-width: 52ch; margin: 0 auto 2rem; }
+  .hero-actions { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
+
+  /* Halftone dome + floating insight card */
+  .dome-wrap { position: relative; margin-top: 3rem; }
+  #dome { width: 100%; height: auto; }
+  .insight-card {
+    position: absolute; left: 50%; top: 34%; transform: translateX(-50%);
+    width: min(480px, 88%); background: rgb(18 18 18 / 0.94); border: 1px solid var(--line);
+    padding: 1.5rem 1.75rem; text-align: left;
+  }
+  .insight-card .tag { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+  .insight-card p { margin: 0.6rem 0 1rem; font-size: 1.02rem; }
+  .chips { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .chip {
+    font-size: 0.78rem; color: var(--ink); border: 1px solid var(--line);
+    border-radius: 999px; padding: 0.35rem 0.8rem; background: transparent; cursor: pointer; font-family: inherit;
+  }
+  .chip:hover { border-color: var(--dim); }
+
+  /* Logo strip */
+  .logos { display: grid; grid-template-columns: repeat(5, 1fr); border-block: 1px solid var(--line); }
+  .logos span {
+    padding: 1.6rem 1rem; text-align: center; color: var(--dim); font-weight: 600;
+    border-right: 1px solid var(--line); font-size: 0.95rem;
+  }
+  .logos span:last-child { border-right: none; }
+
+  /* Features */
+  .section { padding-block: 5.5rem; }
+  .section-head { text-align: center; max-width: 60ch; margin: 0 auto 3rem; }
+  .section-head h2 { font-size: clamp(1.9rem, 4vw, 2.75rem); letter-spacing: -0.02em; line-height: 1.1; margin: 0 0 0.75rem; }
+  .section-head p { color: var(--dim); margin: 0; }
+  .feature-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .feature {
+    border: 1px solid var(--line); background: var(--panel); padding: 1.75rem;
+  }
+  .feature .label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .feature .label strong { font-size: 1.05rem; }
+  .feature .label .tag { font-family: var(--mono); font-size: 0.68rem; color: var(--dim); letter-spacing: 0.12em; text-transform: uppercase; }
+  .feature h3 { margin: 1.25rem 0 0.4rem; font-size: 1rem; }
+  .feature p { color: var(--dim); margin: 0; font-size: 0.95rem; }
+
+  /* Booking */
+  .booking { border-top: 1px solid var(--line); }
+  .booking .container { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+  .booking h2 { font-size: clamp(1.9rem, 4vw, 2.5rem); letter-spacing: -0.02em; line-height: 1.1; margin: 0 0 0.75rem; }
+  .booking .lede { color: var(--dim); }
+  form { border: 1px solid var(--line); background: var(--panel); padding: 1.75rem; }
+  .field { margin-bottom: 1.1rem; }
+  .field label { display: block; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin-bottom: 0.4rem; }
+  .field input {
+    width: 100%; padding: 0.7rem 0.9rem; background: var(--bg); border: 1px solid var(--line);
+    color: var(--ink); font-family: inherit; font-size: 1rem;
+  }
+  .field input:focus { outline: 1px solid var(--ink); border-color: var(--ink); }
+  .field .error { display: none; color: #e07a70; font-size: 0.8rem; margin: 0.3rem 0 0; }
+  .field.invalid .error { display: block; }
+  .field.invalid input { border-color: #e07a70; }
+  .success { display: none; padding: 2rem; border: 1px solid var(--line); background: var(--panel); }
+  .booking.done form { display: none; }
+  .booking.done .success { display: block; }
+
+  footer { border-top: 1px solid var(--line); padding: 2rem 0; }
+  footer .container { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; color: var(--dim); font-size: 0.85rem; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+  }
+  @media (max-width: 820px) {
+    .links { display: none; }
+    .logos { grid-template-columns: 1fr 1fr; }
+    .logos span { border-bottom: 1px solid var(--line); }
+    .feature-pair, .booking .container { grid-template-columns: 1fr; }
+    .insight-card { position: static; transform: none; margin: -4rem auto 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a class="brand" href="#">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="16" r="6" fill="#f2f2ef"/>
+        <path d="M16 2v6M16 24v6M2 16h6M24 16h6" stroke="#f2f2ef" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      Lighthouse
+    </a>
+    <div class="links">
+      <a href="#">Product</a><a href="#">Pricing</a><a href="#">About</a>
+    </div>
+    <div class="nav-cta"><a class="btn" href="#book">Book a call</a></div>
+  </div>
+</nav>
+
+<header class="hero">
+  <span class="badge">Now watching 4 billion events a month</span>
+  <h1>Know why your users churn, before they do.</h1>
+  <p>Lighthouse watches your product data around the clock and explains what changed, in plain English.</p>
+  <div class="hero-actions">
+    <a class="btn" href="#book">Book a call</a>
+    <a class="btn ghost" href="#features">See how it works</a>
+  </div>
+  <div class="dome-wrap">
+    <canvas id="dome" width="1120" height="460" aria-hidden="true"></canvas>
+    <div class="insight-card">
+      <span class="tag">Lighthouse insight</span>
+      <p>Retention dipped after the June 3 pricing change. 62% of drop-offs hit the paywall twice.</p>
+      <div class="chips">
+        <button class="chip" type="button">Show the cohort</button>
+        <button class="chip" type="button">Compare to May</button>
+        <button class="chip" type="button">Draft a fix</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="logos">
+  <span>Fernhollow</span><span>Driftline</span><span>Copperbeam</span><span>Quillstack</span><span>Marlowe Labs</span>
+</div>
+<div class="hatch" aria-hidden="true"></div>
+
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Built for teams without a data team.</h2>
+      <p>Flat dashboards make you do the analysis. Lighthouse reads the data, forms a hypothesis, checks it, and hands you the conclusion.</p>
+    </div>
+    <div class="feature-pair">
+      <div class="feature reveal">
+        <div class="label"><strong>Your funnel</strong><span class="tag">Watched 24/7</span></div>
+        <svg viewBox="0 0 480 120" aria-hidden="true">
+          <polyline points="10,60 70,55 130,62 190,58 250,88 310,92 370,90 470,95" fill="none" stroke="#f2f2ef" stroke-width="2"/>
+          <circle cx="250" cy="88" r="5" fill="#f2f2ef"/>
+        </svg>
+        <h3>Anomalies surface themselves.</h3>
+        <p>Baselines for every funnel and cohort, so a real problem is flagged and a normal Tuesday dip is ignored.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="label"><strong>Your question</strong><span class="tag">Plain English</span></div>
+        <svg viewBox="0 0 480 120" aria-hidden="true">
+          <rect x="10" y="20" width="90" height="80" fill="#f2f2ef"/>
+          <rect x="120" y="45" width="90" height="55" fill="#f2f2ef" opacity="0.7"/>
+          <rect x="230" y="65" width="90" height="35" fill="#f2f2ef" opacity="0.45"/>
+          <rect x="340" y="82" width="90" height="18" fill="#f2f2ef" opacity="0.25"/>
+        </svg>
+        <h3>Answers, with the work shown.</h3>
+        <p>"Where do trial users get stuck?" gets a charted answer plus the reasoning behind it. No SQL, no waiting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hatch" aria-hidden="true"></div>
+
+<section class="section booking" id="book">
+  <div class="container">
+    <div class="reveal">
+      <h2>See Lighthouse on your own data.</h2>
+      <p class="lede">Book a 30-minute call. We'll connect a sample of your data live and show you the first insights before the call ends.</p>
+    </div>
+    <div class="reveal">
+      <form id="book-form" novalidate>
+        <div class="field" data-required>
+          <label for="v1-name">Full name</label>
+          <input id="v1-name" type="text" autocomplete="name">
+          <p class="error">Please enter your name.</p>
+        </div>
+        <div class="field" data-required>
+          <label for="v1-email">Work email</label>
+          <input id="v1-email" type="email" autocomplete="email">
+          <p class="error">Please enter a valid email address.</p>
+        </div>
+        <div class="field" data-required>
+          <label for="v1-company">Company</label>
+          <input id="v1-company" type="text" autocomplete="organization">
+          <p class="error">Please enter your company name.</p>
+        </div>
+        <button class="btn" type="submit">Book a call</button>
+      </form>
+      <div class="success">
+        <strong>Request received.</strong>
+        <p style="color: var(--dim); margin: 0.5rem 0 0;">We'll email you a few times within one business day.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <span>&copy; 2026 Lighthouse Analytics, Inc. A fictional company.</span>
+    <span>V1 Halftone</span>
+  </div>
+</footer>
+
+<script>
+// Halftone dome: dot grid whose brightness follows concentric arcs, like a beacon sweep frozen mid-turn.
+const canvas = document.getElementById("dome");
+const ctx = canvas.getContext("2d");
+const W = canvas.width, H = canvas.height;
+const cx = W / 2, cy = H + 40;         // arc center sits below the canvas
+const maxR = H + 20;
+const gap = 9;                          // dot spacing
+
+function draw(t) {
+  ctx.clearRect(0, 0, W, H);
+  for (let x = gap / 2; x < W; x += gap) {
+    for (let y = gap / 2; y < H; y += gap) {
+      const dx = x - cx, dy = y - cy;
+      const r = Math.sqrt(dx * dx + dy * dy);
+      if (r > maxR) continue;
+      // Brightness: ring pattern + slow radial drift
+      const ring = Math.sin(r / 26 - t / 900);
+      const fade = 1 - r / maxR;
+      const b = Math.max(0, ring * 0.5 + 0.5) * Math.sqrt(fade);
+      if (b < 0.08) continue;
+      ctx.fillStyle = "rgba(242,242,239," + Math.min(1, b * 1.35).toFixed(3) + ")";
+      const size = 1 + b * 2.8;
+      ctx.fillRect(x - size / 2, y - size / 2, size, size);
+    }
+  }
+}
+
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (reduceMotion) {
+  draw(0);
+} else {
+  (function loop(t) { draw(t); requestAnimationFrame(loop); })(0);
+}
+
+// Booking form
+const form = document.getElementById("book-form");
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  let ok = true;
+  form.querySelectorAll(".field[data-required]").forEach((f) => {
+    const input = f.querySelector("input");
+    let good = input.value.trim() !== "";
+    if (good && input.type === "email") good = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
+    f.classList.toggle("invalid", !good);
+    if (!good) ok = false;
+  });
+  if (ok) document.querySelector(".booking").classList.add("done");
+});
+
+// Reveal on scroll
+const io = new IntersectionObserver((es) => es.forEach((e) => {
+  if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+}), { threshold: 0.15 });
+document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

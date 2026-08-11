@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lighthouse Redesign | Pick a direction</title>
+<style>
+  :root {
+    --bg: #101214;
+    --ink: #f0f0ee;
+    --dim: #93938d;
+    --line: #2a2d30;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; }
+  .container { max-width: 1400px; margin-inline: auto; padding: 3rem 1.5rem; }
+  h1 { letter-spacing: -0.02em; margin: 0 0 0.5rem; }
+  .sub { color: var(--dim); margin: 0 0 2.5rem; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .option { border: 1px solid var(--line); background: #16181b; display: flex; flex-direction: column; min-width: 0; }
+  .option h2 { font-size: 1.1rem; margin: 0; padding: 1.1rem 1.25rem 0.25rem; }
+  .option p { color: var(--dim); font-size: 0.88rem; margin: 0; padding: 0 1.25rem 1rem; min-height: 3.6em; }
+  /* Live scaled preview: a full desktop render squeezed into the card */
+  .preview { position: relative; overflow: hidden; height: 460px; border-block: 1px solid var(--line); }
+  .preview iframe {
+    width: 1280px; height: 1650px; border: none;
+    transform-origin: top left;
+    pointer-events: none;
+  }
+  .preview a.cover { position: absolute; inset: 0; }
+  .actions { padding: 1rem 1.25rem; }
+  .actions a {
+    display: inline-block; padding: 0.6rem 1.2rem; border: 1px solid var(--ink);
+    color: var(--ink); text-decoration: none; font-weight: 600; font-size: 0.9rem;
+  }
+  .actions a:hover { background: var(--ink); color: var(--bg); }
+  @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Pick a direction</h1>
+  <p class="sub">Three dark redesigns of the Lighthouse landing page. Click any card to open it full size.</p>
+  <div class="grid">
+    <div class="option">
+      <h2>V1 Halftone</h2>
+      <p>Pure black and white, centered grotesk hero, animated halftone dome with a floating insight card. Closest to the reference.</p>
+      <div class="preview">
+        <iframe src="v1.html" title="V1 Halftone preview" scrolling="no"></iframe>
+        <a class="cover" href="v1.html" aria-label="Open V1 Halftone"></a>
+      </div>
+      <div class="actions"><a href="v1.html">Open V1 full size</a></div>
+    </div>
+    <div class="option">
+      <h2>V2 Beacon</h2>
+      <p>Terminal energy: one electric teal accent, left-aligned hero, live insight feed with a rotating beacon sweep. Sharpest and most technical.</p>
+      <div class="preview">
+        <iframe src="v2.html" title="V2 Beacon preview" scrolling="no"></iframe>
+        <a class="cover" href="v2.html" aria-label="Open V2 Beacon"></a>
+      </div>
+      <div class="actions"><a href="v2.html">Open V2 full size</a></div>
+    </div>
+    <div class="option">
+      <h2>V3 Afterglow</h2>
+      <p>Premium soft-dark: aurora glow, frosted glass insight stack, pill buttons and rounded bento grid. The gentlest of the three.</p>
+      <div class="preview">
+        <iframe src="v3.html" title="V3 Afterglow preview" scrolling="no"></iframe>
+        <a class="cover" href="v3.html" aria-label="Open V3 Afterglow"></a>
+      </div>
+      <div class="actions"><a href="v3.html">Open V3 full size</a></div>
+    </div>
+  </div>
+</div>
+<script>
+// Fit each 1280px-wide iframe to its card, whatever the card's real width is.
+function fitPreviews() {
+  document.querySelectorAll(".preview").forEach((p) => {
+    const frame = p.querySelector("iframe");
+    const scale = p.clientWidth / 1280;
+    frame.style.transform = "scale(" + scale + ")";
+    frame.style.height = Math.ceil(p.clientHeight / scale) + "px";
+  });
+}
+fitPreviews();
+window.addEventListener("resize", fitPreviews);
+</script>
+</body>
+</html>
